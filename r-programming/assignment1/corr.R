@@ -7,11 +7,17 @@ corr <- function(directory, threshold = 0) {
   ## variables) required to compute the correlation between
   ## nitrate and sulfate; the default is 0
   
-  dat <- data.frame()
+  corr <- numeric()
   
-  for(i in id){
-    filename <- file.path(directory, paste(formatC(i, width = 3, flag = "0"), "csv", sep="."))
-    dat <- rbind(dat, read.csv(filename, header=TRUE))
+  file.list <- list.files(path=directory, full.names=TRUE)
+  
+  for(filename in file.list){
+    obs <- read.csv(filename, header=TRUE)
+    good <- complete.cases(obs)
+    if(sum(good) > threshold){
+      complete <- obs[good,]
+      corr <- c(corr, cor(complete[,"sulfate"], complete[,"nitrate"]))
+    }
   }
   
   ## Return a numeric vector of correlations
